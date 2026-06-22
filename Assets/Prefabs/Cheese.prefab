@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3587818691370341759
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -2969028767007099272, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: _position.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2969028767007099272, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: _position.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -2969028767007099272, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: _componentType
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1596978749239232242, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: b8b1e8b6488e7e74a9b2ebc4102c6466, type: 2}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080714087585858490, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3308584703264757134, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}
+      propertyPath: m_Name
+      value: Cheese
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c6e776aa6a061ad4388ecb29a629c222, type: 3}

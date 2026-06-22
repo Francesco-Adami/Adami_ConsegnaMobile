@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00155fd764a482944bf214d33777f016, type: 3}
+  m_Name: GridElementsPrefab
+  m_EditorClassIdentifier: Assembly-CSharp::SO_GridElementsPrefab
+  breadPrefab: {fileID: 2245143761542912768, guid: f007eec4166e76e4fb92a3e45958145a, type: 3}
+  lettucePrefab: {fileID: 4788702834999729768, guid: 3831bbff179aaab41853d3d8bd1d2b83, type: 3}
+  tomatoPrefab: {fileID: 5780256504005611719, guid: 363679e113b8f4c4880751eb4aec5757, type: 3}
+  meatPrefab: {fileID: 5679851482925244527, guid: 90a20cf46e4720649a7237a95cd647cc, type: 3}
+  cheesePrefab: {fileID: 7422383011964052231, guid: bdb0e72dfdd8e7f43a22a0e413bc8f48, type: 3}
