@@ -3,9 +3,9 @@ using UnityEngine;
 public class GridElement : MonoBehaviour, ISandwichComponent
 {
     [SerializeField] private SandwichComponentType _componentType;
-    [SerializeField] private Vector2 _position;
+    [SerializeField] private Vector2Int _position;
 
-    public void Init(SandwichComponentType type, Vector2 position)
+    public void Init(SandwichComponentType type, Vector2Int position)
     {
         _componentType = type;
         _position = position;
@@ -17,8 +17,18 @@ public class GridElement : MonoBehaviour, ISandwichComponent
         );
     }
 
+    public Vector2Int GetGridPosition()
+    {
+        return _position;
+    }
+
     SandwichComponentType ISandwichComponent.GetType()
     {
         return _componentType;
+    }
+
+    public void SetNewGridPos(Vector2Int gridPos)
+    {
+        _position = gridPos;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -14,6 +15,7 @@ public enum SandwichComponentType
 public interface ISandwichComponent
 {
     SandwichComponentType GetType();
+    void SetNewGridPos(Vector2Int gridPos);
 }
 
 public enum Direction
@@ -30,11 +32,21 @@ public class MyGrid
     public MyGrid()
     {
         _grid = new Dictionary<Vector2Int, List<ISandwichComponent>>();
+
+        directionsDict = new Dictionary<Direction, Vector2Int>
+        {
+            [Direction.Right] = new Vector2Int(1, 0),
+            [Direction.Left] = new Vector2Int(-1, 0),
+            [Direction.Up] = new Vector2Int(0, 1),
+            [Direction.Down] = new Vector2Int(0, -1)
+        };
     }
 
     // Dati della griglia
     // posizioni e storage di componenti del sandwich
     public Dictionary<Vector2Int, List<ISandwichComponent>> _grid = new Dictionary<Vector2Int, List<ISandwichComponent>>();
+
+    private Dictionary<Direction, Vector2Int> directionsDict = new Dictionary<Direction, Vector2Int>();
 
     #region PUBLIC API
     public void MoveComponentsToDir(Vector2Int startPos, Direction dir)
@@ -45,36 +57,10 @@ public class MyGrid
             return;
         }
 
-        switch (dir)
-        {
-            case Direction.Right:
-                MoveComponentsTo(
-                    startPos,
-                    new(startPos.x + 1, startPos.y)
-                );
-                break;
-
-            case Direction.Left:
-                MoveComponentsTo(
-                    startPos,
-                    new(startPos.x - 1, startPos.y)
-                );
-                break;
-
-            case Direction.Up:
-                MoveComponentsTo(
-                    startPos,
-                    new(startPos.x, startPos.y + 1)
-                );
-                break;
-
-            case Direction.Down:
-                MoveComponentsTo(
-                    startPos,
-                    new(startPos.x, startPos.y - 1)
-                );
-                break;
-        }
+        MoveComponentsTo(
+            startPos,
+            startPos + directionsDict[dir]
+        );
     }
 
     /// <summary>
@@ -83,12 +69,14 @@ public class MyGrid
     /// </summary>
     public void AddComponentsOnPos(Vector2Int pos, List<ISandwichComponent> componentsToAdd)
     {
-        if (!_grid.ContainsKey(pos))
+        if (!_grid.ContainsKey(pos)) // accade solamente con la generazione dei livelli
         {
             _grid[pos] = new List<ISandwichComponent>();
         }
 
         _grid[pos].AddRange(componentsToAdd);
+
+        HandleGridPosStack(pos);
     }
 
     /// <summary>
@@ -103,10 +91,8 @@ public class MyGrid
             return;
         }
 
-        foreach (ISandwichComponent component in componentsToRemove)
-        {
-            _grid[pos].Remove(component);
-        }
+        // libero tutta la posizione nella griglia perché sposto sempre tutta la pila
+        _grid[pos].Clear();
     }
 
     public void PrintGridValues()
@@ -157,7 +143,43 @@ public class MyGrid
 
     private bool IsDirectionValid(Vector2Int startPos, Direction dir)
     {
-        return true;
+        Debug.Log($"startPos: {startPos} - dir: {dir}");
+
+        // direzione valida se:
+        // la lista ha nella direzione indicata ha almeno un elemento
+
+        if (_grid.TryGetValue(startPos + directionsDict[dir], out List<ISandwichComponent> endList))
+        {
+            return endList.Count > 0;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// funzione per modificare i transform di tutti i componenti di uno stack
+    /// </summary>
+    private void HandleGridPosStack(Vector2Int pos)
+    {
+        float currentY = 0;
+
+        foreach (var sandwichComponent in _grid[pos])
+        {
+            // Controlla se il componente è effettivamente un Component di Unity
+            if (sandwichComponent is Component unityComponent)
+            {
+                Transform t = unityComponent.transform;
+
+                t.position = new Vector3(pos.x * 3, currentY, pos.y * 3); // TODO: rimuovere il bruttissimo * 3 con un metodo
+                sandwichComponent.SetNewGridPos(pos);
+
+                currentY++;
+            }
+            else
+            {
+                Debug.LogWarning("ISandwichComponent non è un Component di Unity!");
+            }
+        }
     }
     #endregion
 }
