@@ -22,7 +22,7 @@ public class GridElement : MonoBehaviour, ISandwichComponent
         return _position;
     }
 
-    SandwichComponentType ISandwichComponent.GetType()
+    public SandwichComponentType GetSandwitchType()
     {
         return _componentType;
     }

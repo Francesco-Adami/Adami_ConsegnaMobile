@@ -14,7 +14,7 @@ public enum SandwichComponentType
 
 public interface ISandwichComponent
 {
-    SandwichComponentType GetType();
+    SandwichComponentType GetSandwitchType();
     void SetNewGridPos(Vector2Int gridPos);
 }
 
@@ -49,8 +49,15 @@ public class MyGrid
     private Dictionary<Direction, Vector2Int> directionsDict = new Dictionary<Direction, Vector2Int>();
 
     #region PUBLIC API
-    public void MoveComponentsToDir(Vector2Int startPos, Direction dir)
+    public void MoveComponentsToDir(GridElement selectedComponent, Direction dir)
     {
+        // se il component è il pane allora non devono esserci altri elementi sulla board
+        // devono essere tutti impilati sulle due fette di pane
+        if (selectedComponent.GetSandwitchType() == SandwichComponentType.Bread && !IsBoardClearForBread()) return;
+
+        // salvo la startPosition per muovere il componente del panino
+        Vector2Int startPos = selectedComponent.GetGridPosition();
+
         if (dir == Direction.None || !IsDirectionValid(startPos, dir))
         {
             Debug.LogWarning("direction not valid");
@@ -105,7 +112,7 @@ public class MyGrid
             List<ISandwichComponent> components = kvp.Value;
 
             // stringa ordinata dei tipi di componenti presenti nella posizione
-            string componentTypes = string.Join(", ", components.ConvertAll(c => c.GetType().ToString()));
+            string componentTypes = string.Join(", ", components.ConvertAll(c => c.GetSandwitchType().ToString()));
 
             Debug.Log($"Position: {pos}, Components: [{componentTypes}]");
         }
@@ -119,7 +126,7 @@ public class MyGrid
             return;
         }
         List<ISandwichComponent> components = _grid[pos];
-        string componentTypes = string.Join(", ", components.ConvertAll(c => c.GetType().ToString()));
+        string componentTypes = string.Join(", ", components.ConvertAll(c => c.GetSandwitchType().ToString()));
         Debug.Log($"Position: {pos}, Components: [{componentTypes}]");
     }
     #endregion
@@ -166,12 +173,23 @@ public class MyGrid
         foreach (var sandwichComponent in _grid[pos])
         {
             // Controlla se il componente è effettivamente un Component di Unity
-            if (sandwichComponent is Component unityComponent)
+            if (sandwichComponent is GridElement element)
             {
-                Transform t = unityComponent.transform;
+                Transform t = element.transform;
 
                 t.position = new Vector3(pos.x * 3, currentY, pos.y * 3); // TODO: rimuovere il bruttissimo * 3 con un metodo
                 sandwichComponent.SetNewGridPos(pos);
+
+                // se è impilato disattivo il collider,
+                // non è più lui l'elemento che devo controllare, ma quello al "livello 0"
+                if (currentY == 0)
+                {
+                    element.GetComponent<Collider>().enabled = true;
+                }
+                else
+                {
+                    element.GetComponent<Collider>().enabled = false;
+                }
 
                 currentY++;
             }
@@ -180,6 +198,24 @@ public class MyGrid
                 Debug.LogWarning("ISandwichComponent non è un Component di Unity!");
             }
         }
+    }
+
+    /// <summary>
+    /// ritorna true se ci sono solamente 2 posti in griglia con elementi stackati, altrimenti false
+    /// </summary>
+    private bool IsBoardClearForBread()
+    {
+        int count = 0;
+
+        foreach (var item in _grid)
+        {
+            if (item.Value.Count > 0)
+            {
+                count++;
+            }
+        }
+
+        return count == 2;
     }
     #endregion
 }

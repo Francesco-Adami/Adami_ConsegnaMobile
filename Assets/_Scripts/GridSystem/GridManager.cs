@@ -89,6 +89,6 @@ public class GridManager : MonoBehaviour
 
     internal void TryMove(GridElement selectedGridElement, Direction direction)
     {
-        grid.MoveComponentsToDir(selectedGridElement.GetGridPosition(), direction);
+        grid.MoveComponentsToDir(selectedGridElement, direction);
     }
 }
