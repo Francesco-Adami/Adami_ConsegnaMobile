@@ -11,6 +11,8 @@ public class MainMenuUI : BaseUI
 
     private void OnEnable()
     {
+        Time.timeScale = 0.0f;
+
         playLevelButton.onClick.AddListener(StartLevel);
         playRandomLevelButton.onClick.AddListener(StartRandomLevel);
         ExitGameButton.onClick.AddListener(ExitGame);
@@ -18,6 +20,8 @@ public class MainMenuUI : BaseUI
 
     private void OnDisable()
     {
+        Time.timeScale = 1.0f;
+
         playLevelButton.onClick.RemoveListener(StartLevel);
         playRandomLevelButton.onClick.RemoveListener(StartRandomLevel);
         ExitGameButton.onClick.RemoveListener(ExitGame);

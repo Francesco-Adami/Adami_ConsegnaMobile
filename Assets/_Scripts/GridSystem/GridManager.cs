@@ -27,7 +27,11 @@ public class GridManager : MonoBehaviour
     #region PUBLIC API
     public void TryMove(GridElement selectedGridElement, Direction direction)
     {
-        grid.MoveComponentsToDir(selectedGridElement, direction);
+        if (grid.MoveComponentsToDir(selectedGridElement, direction))
+        {
+            Debug.LogError("YOU WIN");
+            GameManager.Instance.WinGame();
+        }
     }
 
     public void GenerateLevel(SO_GridData gridData)

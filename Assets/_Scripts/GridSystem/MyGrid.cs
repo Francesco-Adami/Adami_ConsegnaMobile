@@ -79,11 +79,14 @@ public class MyGrid
     private Dictionary<Direction, Vector2Int> directionsDict = new Dictionary<Direction, Vector2Int>();
 
     #region PUBLIC API
-    public void MoveComponentsToDir(GridElement selectedComponent, Direction dir)
+    public bool MoveComponentsToDir(GridElement selectedComponent, Direction dir)
     {
+        bool win = false;
+
         // se il component è il pane allora non devono esserci altri elementi sulla board
         // devono essere tutti impilati sulle due fette di pane
-        if (selectedComponent.GetSandwitchType() == SandwichComponentType.Bread && !IsBoardClearForBread()) return;
+        if (selectedComponent.GetSandwitchType() == SandwichComponentType.Bread && !IsBoardClearForBread()) return win;
+
 
         // se l'oggetto ha 2 oggetti adiacenti a lui (nelle direzioni opposte) non lo muovo
         // if (IsElementBetweenOthers(selectedComponent, dir)) return;
@@ -94,13 +97,21 @@ public class MyGrid
         if (dir == Direction.None || !IsDirectionValid(startPos, dir))
         {
             Debug.LogWarning("direction not valid");
-            return;
+            return win;
+        }
+
+        // se sto spostando una delle due fette di pane e sono arrivato qui ho vinto
+        if (selectedComponent.GetSandwitchType() == SandwichComponentType.Bread)
+        {
+            win = true;
         }
 
         MoveComponentsTo(
             startPos,
             startPos + directionsDict[dir]
         );
+
+        return win;
     }
 
     /// <summary>

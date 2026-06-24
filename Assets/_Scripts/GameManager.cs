@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,5 +43,22 @@ public class GameManager : MonoBehaviour
     public void StartRandomGame()
     {
 
+    }
+
+    public void WinGame()
+    {
+        StartCoroutine(WinRoutine());
+    }
+
+    private IEnumerator WinRoutine()
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        UIManager.Instance.ShowUI(GameUI.Win);
+    }
+
+    public bool HasMoreLevels()
+    {
+        return currentLevelIndex < levels.Count - 1;
     }
 }
