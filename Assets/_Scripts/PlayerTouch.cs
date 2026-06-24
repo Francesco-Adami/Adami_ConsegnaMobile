@@ -36,7 +36,7 @@ public class PlayerTouch : MonoBehaviour
             if (touch.phase == TouchPhase.Ended && selectedGridElement)
             {
                 endPos = touch.screenPosition;
-                Debug.Log($"Touch ended. Start Position: {startPos}, End Position: {endPos}");
+                //Debug.Log($"Touch ended. Start Position: {startPos}, End Position: {endPos}");
 
                 GridManager.Instance.TryMove(selectedGridElement, GetDir());
             }
@@ -65,7 +65,7 @@ public class PlayerTouch : MonoBehaviour
                 if (hit.transform.TryGetComponent(out GridElement gridElement))
                 {
                     selectedGridElement = gridElement;
-                    Debug.Log($"Touched GridElement: {gridElement.name}");
+                    //Debug.Log($"Touched GridElement: {gridElement.name}");
                     startPos = touch.screenPosition;
                     return true;
                 }

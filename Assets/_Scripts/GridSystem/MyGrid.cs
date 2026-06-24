@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum SandwichComponentType
 {
+    None,
     Bread,
     lettuce,
     Tomato,
     Meat,
-    Cheese
+    Cheese,
 }
 
 public interface ISandwichComponent
@@ -25,6 +25,33 @@ public enum Direction
     Left,
     Up,
     Down,
+}
+
+public struct PlayerMove
+{
+    public Direction MoveDirection;
+    public Vector2Int StartPos;
+    public Vector2Int EndPos;
+    public List<ISandwichComponent> SandwichComponents;
+
+    public Direction InverseDirection()
+    {
+        switch (MoveDirection)
+        {
+            case Direction.None:
+                return Direction.None;
+            case Direction.Right:
+                return Direction.Left;
+            case Direction.Left:
+                return Direction.Right;
+            case Direction.Up:
+                return Direction.Down;
+            case Direction.Down:
+                return Direction.Up;
+            default:
+                return Direction.None;
+        }
+    }
 }
 
 public class MyGrid
@@ -46,6 +73,9 @@ public class MyGrid
     // posizioni e storage di componenti del sandwich
     public Dictionary<Vector2Int, List<ISandwichComponent>> _grid = new Dictionary<Vector2Int, List<ISandwichComponent>>();
 
+    // ultima mossa eseguita
+    public PlayerMove lastPlayerMove;
+
     private Dictionary<Direction, Vector2Int> directionsDict = new Dictionary<Direction, Vector2Int>();
 
     #region PUBLIC API
@@ -54,6 +84,9 @@ public class MyGrid
         // se il component è il pane allora non devono esserci altri elementi sulla board
         // devono essere tutti impilati sulle due fette di pane
         if (selectedComponent.GetSandwitchType() == SandwichComponentType.Bread && !IsBoardClearForBread()) return;
+
+        // se l'oggetto ha 2 oggetti adiacenti a lui (nelle direzioni opposte) non lo muovo
+        // if (IsElementBetweenOthers(selectedComponent, dir)) return;
 
         // salvo la startPosition per muovere il componente del panino
         Vector2Int startPos = selectedComponent.GetGridPosition();
@@ -98,8 +131,12 @@ public class MyGrid
             return;
         }
 
-        // libero tutta la posizione nella griglia perché sposto sempre tutta la pila
-        _grid[pos].Clear();
+        // libero gli item dentro la posizione
+        // Iterazione al contrario per evitare errori di modifica
+        for (int i = componentsToRemove.Count - 1; i >= 0; i--)
+        {
+            _grid[pos].Remove(componentsToRemove[i]);
+        }
     }
 
     public void PrintGridValues()
@@ -129,13 +166,33 @@ public class MyGrid
         string componentTypes = string.Join(", ", components.ConvertAll(c => c.GetSandwitchType().ToString()));
         Debug.Log($"Position: {pos}, Components: [{componentTypes}]");
     }
+
+    public void UndoLastMove()
+    {
+        if (lastPlayerMove.MoveDirection == Direction.None) return;
+
+        // dati
+        List<ISandwichComponent> invertedComponentsToMove = new(lastPlayerMove.SandwichComponents);
+        invertedComponentsToMove.Reverse();
+
+        // rimuovo i componenti 
+        RemoveComponentsOnPos(lastPlayerMove.EndPos, invertedComponentsToMove);
+
+        // ri-aggiungo la lista di componenti alla vecchia posizione
+        AddComponentsOnPos(lastPlayerMove.StartPos, lastPlayerMove.SandwichComponents);
+
+        HandleGridPosStack(lastPlayerMove.EndPos);
+        HandleGridPosStack(lastPlayerMove.StartPos);
+
+        lastPlayerMove = default;
+    }
     #endregion
 
     #region HELPERS
     private void MoveComponentsTo(Vector2Int startPos, Vector2Int endPos)
     {
         // salvo gli elementi che ho in startPos
-        List<ISandwichComponent> componentsToMove = _grid[startPos];
+        List<ISandwichComponent> componentsToMove = new List<ISandwichComponent>(_grid[startPos]);
 
         // creo lista invertita
         List<ISandwichComponent> invertedComponentsToMove = new List<ISandwichComponent>(componentsToMove);
@@ -146,11 +203,45 @@ public class MyGrid
 
         // rimuovo la lista da startPos
         RemoveComponentsOnPos(startPos, componentsToMove);
+
+        // salvo la mossa appena fatta
+        lastPlayerMove = new PlayerMove()
+        {
+            MoveDirection = CalculateDirection(startPos, endPos),
+            StartPos = startPos,
+            EndPos = endPos,
+            SandwichComponents = componentsToMove
+        };
+    }
+
+    private Direction CalculateDirection(Vector2Int startPos, Vector2Int endPos)
+    {
+        // differenza tra le due posizioni
+        Vector2Int diff = endPos - startPos;
+
+        // Se non c'è stato alcun movimento --> non dovrebbe succedere
+        if (diff.x == 0 && diff.y == 0)
+        {
+            return Direction.None;
+        }
+
+        // Confronta i valori assoluti per determinare l'asse dominante
+        if (Math.Abs(diff.x) > Math.Abs(diff.y))
+        {
+            // orizzontale
+            return diff.x > 0 ? Direction.Right : Direction.Left;
+        }
+        else
+        {
+            // verticale
+            return diff.y > 0 ? Direction.Up : Direction.Down;
+        }
     }
 
     private bool IsDirectionValid(Vector2Int startPos, Direction dir)
     {
         Debug.Log($"startPos: {startPos} - dir: {dir}");
+        Debug.Log($"endPos: {startPos + directionsDict[dir]}");
 
         // direzione valida se:
         // la lista ha nella direzione indicata ha almeno un elemento
@@ -217,5 +308,46 @@ public class MyGrid
 
         return count == 2;
     }
+
+    /// <summary>
+    /// ritorna true se l'elemento in input è in mezzo tra 2 elementi orizzontalmente e verticalmente
+    /// </summary>
+    //private bool IsElementBetweenOthers(GridElement selectedComponent, Direction dir)
+    //{
+    //    // check orizzontale
+    //    int adiancentCount = 0;
+    //    adiancentCount += CheckItemInDir(selectedComponent, directionsDict[Direction.Right]);
+    //    adiancentCount += CheckItemInDir(selectedComponent, directionsDict[Direction.Left]);
+    //    if (adiancentCount > 1)
+    //    {
+    //        return true;
+    //    }
+
+    //    // check verticale
+    //    adiancentCount = 0;
+    //    adiancentCount += CheckItemInDir(selectedComponent, directionsDict[Direction.Up]);
+    //    adiancentCount += CheckItemInDir(selectedComponent, directionsDict[Direction.Down]);
+    //    if (adiancentCount > 1)
+    //    {
+    //        return true;
+    //    }
+
+    //    return false;
+    //}
+
+    //private int CheckItemInDir(GridElement selectedComponent, Vector2Int dir)
+    //{
+    //    if (!_grid.ContainsKey(selectedComponent.GetGridPosition() + dir))
+    //    {
+    //        return 0;
+    //    }
+
+    //    if (_grid[selectedComponent.GetGridPosition() + dir].Count > 0)
+    //    {
+    //        return 1;
+    //    }
+
+    //    return 0;
+    //}
     #endregion
 }

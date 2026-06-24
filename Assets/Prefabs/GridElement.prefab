@@ -46,8 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27e31c0bc6e32c44ba1be450addf6d10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridElement
-  _componentType: 2
-  _position: {x: 1, y: 0}
+  _componentType: 0
+  _position: {x: 0, y: 0}
 --- !u!65 &3459776187290059795
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -9,6 +9,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private SO_GridElementsPrefab gridElements;
 
     private MyGrid grid;
+    private SO_GridData currentLevel;
 
     private void Awake()
     {
@@ -23,33 +24,52 @@ public class GridManager : MonoBehaviour
         #endregion
     }
 
-    private void Start()
+    #region PUBLIC API
+    public void TryMove(GridElement selectedGridElement, Direction direction)
     {
-        grid = new MyGrid();
-
-        grid.AddComponentsOnPos(new Vector2Int(0, 0), new List<ISandwichComponent>
-        {
-            InstantiateGridElement(SandwichComponentType.Bread, new Vector2Int(0, 0))
-        });
-
-        grid.AddComponentsOnPos(new Vector2Int(0, 1), new List<ISandwichComponent>
-        {
-            InstantiateGridElement(SandwichComponentType.Bread, new Vector2Int(0, 1))
-        });
-
-        grid.AddComponentsOnPos(new Vector2Int(1, 0), new List<ISandwichComponent>
-        {
-            InstantiateGridElement(SandwichComponentType.Tomato, new Vector2Int(1, 0))
-        });
-
-        grid.AddComponentsOnPos(new Vector2Int(1, 1), new List<ISandwichComponent>
-        {
-            InstantiateGridElement(SandwichComponentType.Cheese, new Vector2Int(1, 1))
-        });
-
-        grid.PrintGridValues();
+        grid.MoveComponentsToDir(selectedGridElement, direction);
     }
 
+    public void GenerateLevel(SO_GridData gridData)
+    {
+        // evito errori stupidi
+        if (gridData == null || gridData.gridCells == null) return;
+
+        CleanBoard();
+        currentLevel = gridData;
+
+        for (int i = 0; i < gridData.rows; i++)
+        {
+            for (int j = 0; j < gridData.cols; j++)
+            {
+                if (NeedToSpawn(gridData, i, j, out SandwichComponentType type))
+                {
+                    Vector2Int gridPos = new(i, j);
+
+                    // spawno l'oggetto nella posizione [i, j]
+                    grid.AddComponentsOnPos(gridPos, new List<ISandwichComponent>
+                    {
+                        InstantiateGridElement(type, gridPos)
+                    });
+                }
+            }
+        }
+    }
+
+    public void ResetLevel()
+    {
+        if (currentLevel == null) return;
+
+        GenerateLevel(currentLevel);
+    }
+
+    public void UndoLastMove()
+    {
+        grid.UndoLastMove();
+    }
+    #endregion
+
+    #region HELPERS
     private GridElement InstantiateGridElement(SandwichComponentType type, Vector2Int position)
     {
         GridElement element = InstantiateByType(type);
@@ -82,13 +102,36 @@ public class GridManager : MonoBehaviour
                 break;
         }
 
-        GridElement prefab = Instantiate(prefabToSpawn);
+        GridElement prefab = Instantiate(prefabToSpawn, transform);
 
         return prefab;
     }
 
-    internal void TryMove(GridElement selectedGridElement, Direction direction)
+    private bool NeedToSpawn(SO_GridData gridData, int i, int j, out SandwichComponentType type)
     {
-        grid.MoveComponentsToDir(selectedGridElement, direction);
+        // Converto le coordinate 2D per l'array di gridData
+        int index = i * gridData.cols + j;
+
+        // Assegno il type al mio type in out
+        type = gridData.gridCells[index];
+
+        // Ritorno true se la cella non è vuota
+        return type != SandwichComponentType.None;
     }
+
+    private void CleanBoard()
+    {
+        grid = new MyGrid();
+
+        var elements = FindObjectsByType<GridElement>(sortMode: FindObjectsSortMode.None);
+
+        foreach (var element in elements)
+        {
+            if (element != null)
+            {
+                Destroy(element.gameObject);
+            }
+        }
+    }
+    #endregion
 }

@@ -1,0 +1,46 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+
+public class GameManager : MonoBehaviour
+{
+    public static GameManager Instance { get; private set; }
+
+    [SerializeField] private List<SO_GridData> levels = new List<SO_GridData>();
+
+    private int currentLevelIndex = 0;
+    public int CurrentLevelIndex { get { return currentLevelIndex; } }
+
+    private void Awake()
+    {
+        #region SINGLETON PATTERN
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        #endregion
+    }
+
+    public void StartGameLevel(int index)
+    {
+        if (levels.Count <= index)
+        {
+            Debug.LogWarning($"No more level available: {index}");
+            return;
+        }
+
+        GridManager.Instance.GenerateLevel(levels[index]);
+        currentLevelIndex = index;
+
+        UIManager.Instance.ShowUI(GameUI.Hud);
+    }
+
+    public void StartRandomGame()
+    {
+
+    }
+}
