@@ -74,7 +74,23 @@ public class MyGrid
     public Dictionary<Vector2Int, List<ISandwichComponent>> _grid = new Dictionary<Vector2Int, List<ISandwichComponent>>();
 
     // ultima mossa eseguita
-    public PlayerMove lastPlayerMove;
+    private PlayerMove lastPlayerMove;
+    public PlayerMove LastPlayerMove
+    {
+        get { return lastPlayerMove; }
+        set
+        {
+            lastPlayerMove = value;
+
+            if (value.MoveDirection == Direction.None)
+            {
+                OnResetLastMove?.Invoke();
+            }
+        }
+    }
+
+    public event Action OnMovePerformed;
+    public event Action OnResetLastMove;
 
     private Dictionary<Direction, Vector2Int> directionsDict = new Dictionary<Direction, Vector2Int>();
 
@@ -110,6 +126,8 @@ public class MyGrid
             startPos,
             startPos + directionsDict[dir]
         );
+
+        OnMovePerformed?.Invoke();
 
         return win;
     }
@@ -178,24 +196,34 @@ public class MyGrid
         Debug.Log($"Position: {pos}, Components: [{componentTypes}]");
     }
 
-    public void UndoLastMove()
+    public bool UndoLastMove()
     {
-        if (lastPlayerMove.MoveDirection == Direction.None) return;
+        if (LastPlayerMove.MoveDirection == Direction.None) return false;
 
         // dati
-        List<ISandwichComponent> invertedComponentsToMove = new(lastPlayerMove.SandwichComponents);
+        List<ISandwichComponent> invertedComponentsToMove = new(LastPlayerMove.SandwichComponents);
         invertedComponentsToMove.Reverse();
 
         // rimuovo i componenti 
-        RemoveComponentsOnPos(lastPlayerMove.EndPos, invertedComponentsToMove);
+        RemoveComponentsOnPos(LastPlayerMove.EndPos, invertedComponentsToMove);
 
         // ri-aggiungo la lista di componenti alla vecchia posizione
-        AddComponentsOnPos(lastPlayerMove.StartPos, lastPlayerMove.SandwichComponents);
+        AddComponentsOnPos(LastPlayerMove.StartPos, LastPlayerMove.SandwichComponents);
 
-        HandleGridPosStack(lastPlayerMove.EndPos);
-        HandleGridPosStack(lastPlayerMove.StartPos);
+        HandleGridPosStack(LastPlayerMove.EndPos);
+        HandleGridPosStack(LastPlayerMove.StartPos);
 
-        lastPlayerMove = default;
+        LastPlayerMove = default;
+        return true;
+    }
+
+    public void Clean()
+    {
+        // pulisco il dict
+        _grid.Clear();
+
+        // pulisco l'ultima mossa fatta
+        LastPlayerMove = default;
     }
     #endregion
 
@@ -216,7 +244,7 @@ public class MyGrid
         RemoveComponentsOnPos(startPos, componentsToMove);
 
         // salvo la mossa appena fatta
-        lastPlayerMove = new PlayerMove()
+        LastPlayerMove = new PlayerMove()
         {
             MoveDirection = CalculateDirection(startPos, endPos),
             StartPos = startPos,

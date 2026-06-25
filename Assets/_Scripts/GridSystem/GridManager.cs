@@ -8,6 +8,9 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private SO_GridElementsPrefab gridElements;
 
+    public event Action OnMovePerformed;
+    public event Action OnResetLastMove;
+
     private MyGrid grid;
     private SO_GridData currentLevel;
 
@@ -22,6 +25,15 @@ public class GridManager : MonoBehaviour
 
         Instance = this;
         #endregion
+
+        grid = new();
+
+        grid.OnResetLastMove += HandleResetLastMove;
+    }
+
+    private void HandleResetLastMove()
+    {
+        OnResetLastMove?.Invoke();
     }
 
     #region PUBLIC API
@@ -65,11 +77,23 @@ public class GridManager : MonoBehaviour
         if (currentLevel == null) return;
 
         GenerateLevel(currentLevel);
+        grid.LastPlayerMove = default;
     }
 
-    public void UndoLastMove()
+    /// <summary>
+    /// ritorna true se è andato a buon fine, false altrimenti
+    /// </summary>
+    /// <returns></returns>
+    public bool UndoLastMove()
     {
-        grid.UndoLastMove();
+        if (grid.UndoLastMove()) return true;
+
+        return false;
+    }
+
+    public void ResetLastMove()
+    {
+        grid.LastPlayerMove = default;
     }
     #endregion
 
@@ -125,7 +149,7 @@ public class GridManager : MonoBehaviour
 
     private void CleanBoard()
     {
-        grid = new MyGrid();
+        grid.Clean();
 
         var elements = FindObjectsByType<GridElement>(sortMode: FindObjectsSortMode.None);
 
@@ -136,6 +160,16 @@ public class GridManager : MonoBehaviour
                 Destroy(element.gameObject);
             }
         }
+    }
+
+    internal void AddOnMovePerformed(Action enableUndoButton)
+    {
+        grid.OnMovePerformed += enableUndoButton;
+    }
+
+    public void RemoveOnMovePerformed(Action enableUndoButton)
+    {
+        grid.OnMovePerformed -= enableUndoButton;
     }
     #endregion
 }

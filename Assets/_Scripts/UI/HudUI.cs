@@ -9,11 +9,20 @@ public class HudUI : BaseUI
     [SerializeField] private Button resetBoardButton;
     [SerializeField] private Button nextLevelButton;
 
+
+
     private void OnEnable()
     {
         undoButton.onClick.AddListener(UndoMove);
         resetBoardButton.onClick.AddListener(ResetLevel);
         nextLevelButton.onClick.AddListener(NextLevel);
+
+        if (GridManager.Instance != null)
+        {
+            GridManager.Instance.OnResetLastMove += EnableUndoButton;
+        }
+
+        undoButton.interactable = false;
     }
 
     private void OnDisable()
@@ -21,6 +30,16 @@ public class HudUI : BaseUI
         undoButton.onClick.RemoveListener(UndoMove);
         resetBoardButton.onClick.RemoveListener(ResetLevel);
         nextLevelButton.onClick.RemoveListener(NextLevel);
+
+        if (GridManager.Instance != null)
+        {
+            GridManager.Instance.OnResetLastMove -= EnableUndoButton;
+        }
+    }
+
+    private void EnableUndoButton()
+    {
+        undoButton.interactable = true;
     }
 
     private void NextLevel()
@@ -30,7 +49,11 @@ public class HudUI : BaseUI
 
     private void UndoMove()
     {
-        GridManager.Instance.UndoLastMove();
+        if (GridManager.Instance.UndoLastMove())
+        {
+            // siccome ho solamente una mossa salvata disattivo il button
+            undoButton.interactable = false;
+        }
     }
 
     private void ResetLevel()
