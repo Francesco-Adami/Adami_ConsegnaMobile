@@ -8,7 +8,6 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private SO_GridElementsPrefab gridElements;
 
-    public event Action OnMovePerformed;
     public event Action OnResetLastMove;
 
     private MyGrid grid;
