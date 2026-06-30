@@ -11,6 +11,7 @@ public class GridManager : MonoBehaviour
     public event Action OnResetLastMove;
 
     private MyGrid grid;
+    private LevelGenerator levelGenerator;
     private SO_GridData currentLevel;
 
     private void Awake()
@@ -26,6 +27,7 @@ public class GridManager : MonoBehaviour
         #endregion
 
         grid = new();
+        levelGenerator = new();
 
         grid.OnResetLastMove += HandleResetLastMove;
     }
@@ -88,6 +90,12 @@ public class GridManager : MonoBehaviour
         if (grid.UndoLastMove()) return true;
 
         return false;
+    }
+
+    public void GenerateRandomLevel()
+    {
+        SO_GridData randomLevel = levelGenerator.GenerateLevel();
+        GenerateLevel(randomLevel);
     }
 
     public void ResetLastMove()

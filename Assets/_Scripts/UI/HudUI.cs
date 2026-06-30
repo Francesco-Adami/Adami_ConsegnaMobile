@@ -24,7 +24,7 @@ public class HudUI : BaseUI
             GridManager.Instance.OnResetLastMove += OnResetLastMoveHandler;
         }
 
-        // Tutti e tre i pulsanti partono disabilitati
+        // i pulsanti per cancellare partono disabilitati
         undoButton.interactable = false;
         resetBoardButton.interactable = false;
 
@@ -43,6 +43,12 @@ public class HudUI : BaseUI
             GridManager.Instance.RemoveOnMovePerformed(OnMovePerformedHandler);
             GridManager.Instance.OnResetLastMove -= OnResetLastMoveHandler;
         }
+    }
+
+    public void DisableCancelButtons()
+    {
+        undoButton.interactable = false;
+        resetBoardButton.interactable = false;
     }
 
     /// <summary>
